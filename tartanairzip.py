@@ -4,10 +4,37 @@ import numpy as np
 from PIL import Image
 from io import BytesIO
 
+import numpy as np
+from scipy import ndimage as nd
+from glob import glob
+
+def fill(data, invalid=None):
+    """
+    Replace the value of invalid 'data' cells (indicated by 'invalid') 
+    by the value of the nearest valid data cell
+
+    Input:
+        data:    numpy array of any dimension
+        invalid: a binary array of same shape as 'data'. True cells set where data
+                 value should be replaced.
+                 If None (default), use: invalid  = np.isnan(data)
+
+    Output: 
+        Return a filled array. 
+    """
+    #import numpy as np
+    #import scipy.ndimage as nd
+
+    if invalid is None: invalid = np.isnan(data)
+
+    ind = nd.distance_transform_cdt(invalid, metric='taxicab',return_distances=False, return_indices=True)
+    return data[tuple(ind)]
+
+
 class CacheObject(object):
 
   def clear(self,exceptions=set()):
-    for i in (x for x in dir(self) if x.startswith('_cache') and x not in exceptions):
+    for i in (x for x in dir(self) if x.startswith('_cache') and ((x not in exceptions) and "_cache_" + x not in exceptions)):
       delattr(self,i)
 
 from functools import update_wrapper
@@ -117,6 +144,11 @@ class TartanAirFrame(CacheObject):
   def flow_mask_same_dim(self):
     return np.repeat(self.flow_mask[:,:,np.newaxis],2,axis=2)
 
+  @LazyProperty
+  def flow_mask_filled(self):
+  	return fill(self.flow_flow,(self.flow_mask_same_dim > 0))
+
+
 
 
 class TartanAirTrajectory(CacheObject):
@@ -217,4 +249,49 @@ class TartanAirScene(CacheObject):
       if not idx in self._cache_trajectories:
         self._cache_trajectories[idx] = TartanAirTrajectory(idx,self)
       return self._cache_trajectories[idx]
+
+
+
+def _calculate_angle_distance_from_du_dv(du, dv, flagDegree=False):
+    a = np.arctan2( dv, du )
+
+    angleShift = np.pi
+
+    if ( True == flagDegree ):
+        a = a / np.pi * 180
+        angleShift = 180
+        # print("Convert angle from radian to degree as demanded by the input file.")
+
+    d = np.sqrt( du * du + dv * dv )
+
+    return a, d, angleShift
     
+def flow2vis(flownp, maxF=500.0, n=8, mask=None, hueMax=179, angShift=0.0): 
+    """
+    Show a optical flow field as the KITTI dataset does.
+    Some parts of this function is the transform of the original MATLAB code flow_to_color.m.
+    """
+
+    ang, mag, _ = _calculate_angle_distance_from_du_dv( flownp[:, :, 0], flownp[:, :, 1], flagDegree=False )
+
+    # Use Hue, Saturation, Value colour model 
+    hsv = np.zeros( ( ang.shape[0], ang.shape[1], 3 ) , dtype=np.float32)
+
+    am = ang < 0
+    ang[am] = ang[am] + np.pi * 2
+
+    hsv[ :, :, 0 ] = np.remainder( ( ang + angShift ) / (2*np.pi), 1 )
+    hsv[ :, :, 1 ] = mag / maxF * n
+    hsv[ :, :, 2 ] = (n - hsv[:, :, 1])/n
+
+    hsv[:, :, 0] = np.clip( hsv[:, :, 0], 0, 1 ) * hueMax
+    hsv[:, :, 1:3] = np.clip( hsv[:, :, 1:3], 0, 1 ) * 255
+    hsv = hsv.astype(np.uint8)
+
+    rgb = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
+
+    if ( mask is not None ):
+        mask = mask > 0
+        rgb[mask] = np.array([0, 0 ,0], dtype=np.uint8)
+
+    return rgb
