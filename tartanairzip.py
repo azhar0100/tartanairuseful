@@ -235,7 +235,7 @@ class TartanAirScene(CacheObject):
     self.indices = np.unique([int(x.split('/')[3][1:]) for x in next(iter(self.zips.items()))[1].namelist()]).tolist()
     self.purepath = PurePath(next(iter(self.zips.items()))[1].namelist()[0]).parents[2]
     # print(list(self.purepath.parents))
-    self.scene_name = "_".join(str(tass[-1].purepath).rsplit('/',2)[-2:])
+    self.scene_name = "_".join(str(self.purepath).rsplit('/',2)[-2:])
     self.names = []
     for i in (x[1].namelist() for x in self.zips.items()):
       self.names.extend(i)
