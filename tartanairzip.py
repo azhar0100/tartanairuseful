@@ -180,17 +180,24 @@ class TartanAirTrajectory(CacheObject):
     
 
 class TartanAirScene(CacheObject):
-  def __init__(self,path):
+  def __init__(self,path,pathsandzips=None):
     self.path = path
     self.zips = {}
     self.expected = ['seg_right.zip', 'flow_mask.zip', 'seg_left.zip', 'image_right.zip', 'flow_flow.zip', 'depth_left.zip', 'depth_right.zip', 'image_left.zip']
-    self.pathsfound = [x for x in self.expected if glob(path + '/' + "*" + x) != []]
-    self.zipfilepaths = [glob(path + '/' + "*" + x)[0] for x in self.pathsfound]
-    self.scene_name = "_".join(self.zipfilepaths[0].split('/')[-1].split('_')[0:2])
+    if pathsandzips is None:
+      self.pathsfound = [x for x in self.expected if glob(path + '/' + "*" + x) != []]
+      self.zipfilepaths = [glob(path + '/' + "*" + x)[0] for x in self.pathsfound]
+    else:
+      self.pathsfound = pathsandzips[0]
+      self.zipfilepaths = pathsandzips[1]
+    
+    #self.scene_name = "_".join(self.zipfilepaths[0].split('/')[-1].split('_')[0:2])
     self.zipfiles = [zipfile.ZipFile(x) for x in self.zipfilepaths]
     self.zips = dict(zip([x.split('.')[0] for x in self.pathsfound],self.zipfiles))
     self.indices = np.unique([int(x.split('/')[3][1:]) for x in next(iter(self.zips.items()))[1].namelist()]).tolist()
     self.purepath = PurePath(next(iter(self.zips.items()))[1].namelist()[0]).parents[2]
+    # print(list(self.purepath.parents))
+    self.scene_name = str(list(self.purepath.parents)[-2])
     self.names = []
     for i in (x[1].namelist() for x in self.zips.items()):
       self.names.extend(i)
@@ -211,4 +218,3 @@ class TartanAirScene(CacheObject):
         self._cache_trajectories[idx] = TartanAirTrajectory(idx,self)
       return self._cache_trajectories[idx]
     
-
