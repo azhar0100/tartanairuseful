@@ -256,9 +256,9 @@ class TartanAirScene(CacheObject):
         self._cache_trajectories[idx] = TartanAirTrajectory(idx,self)
       return self._cache_trajectories[idx]
 
-   def __iter__(self):
-     for x in self.indices:
-       yield self[x]
+  def __iter__(self):
+    for x in self.indices:
+      yield self[x]
 
 
 
