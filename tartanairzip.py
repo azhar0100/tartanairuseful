@@ -147,12 +147,12 @@ class TartanAirFrame(CacheObject):
 
   @LazyProperty
   def flow_mask_filled(self):
-  	return fill(self.flow_flow,(self.flow_mask_same_dim > 0))
+    return fill(self.flow_flow,(self.flow_mask_same_dim > 0))
 
   @LazyProperty
   def flow_variance(self):
-  	# with self:
-  		return np.var(np.std(self.flow_mask_filled,axis=2))
+    # with self:
+        return np.var(np.std(self.flow_mask_filled,axis=2))
 
 
 
@@ -257,8 +257,8 @@ class TartanAirScene(CacheObject):
       return self._cache_trajectories[idx]
 
    def __iter__(self):
-   	for x in self.indices:
-   		yield self[x]
+     for x in self.indices:
+       yield self[x]
 
 
 
