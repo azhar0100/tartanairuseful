@@ -70,6 +70,7 @@ class LazyProperty(property):
 
 
 
+
 import tempfile
 
 class TartanAirFrame(CacheObject):
@@ -150,7 +151,7 @@ class TartanAirFrame(CacheObject):
 
   @LazyProperty
   def flow_variance(self):
-  	with self:
+  	# with self:
   		return np.var(np.std(self.flow_mask_filled,axis=2))
 
 
