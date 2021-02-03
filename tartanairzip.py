@@ -2,11 +2,12 @@ import zipfile
 from pathlib import PurePath
 import numpy as np
 from PIL import Image
+from io import BytesIO
 
 class CacheObject(object):
 
-  def clear(self):
-    for i in (x for x in dir(self) if x.startswith('_cache')):
+  def clear(self,exceptions=set()):
+    for i in (x for x in dir(self) if x.startswith('_cache') and x not in exceptions):
       delattr(self,i)
 
 from functools import update_wrapper
@@ -104,15 +105,17 @@ class TartanAirFrame(CacheObject):
   
   @LazyProperty
   def flow_mask(self):
-    with tempfile.TemporaryDirectory() as tfd:
-        p = self.zips['flow_mask'].extract(self.namedict['flow_mask'],tfd)
-        return np.loadtxt(p)
+    with self.zips['flow_mask'].open(self.namedict['flow'][:-8] + "mask.npy") as f:
+        return np.load(BytesIO(f.read()))
   
   @LazyProperty
   def flow_flow(self):
-    with tempfile.TemporaryDirectory() as tfd:
-        p = self.zips['flow_flow'].extract(self.namedict['flow_flow'],tfd)
-        return np.loadtxt(p)
+    with self.zips['flow_flow'].open(self.namedict['flow']) as f:
+        return np.load(BytesIO(f.read()))
+
+  @property
+  def flow_mask_same_dim(self):
+    return np.repeat(self.flow_mask[:,:,np.newaxis],2,axis=2)
 
 
 
