@@ -1,5 +1,5 @@
 import zipfile
-from pathlib import PurePath
+from pathlib import PurePath,Path
 import numpy as np
 from PIL import Image
 from io import BytesIO
@@ -7,6 +7,29 @@ from io import BytesIO
 import numpy as np
 from scipy import ndimage as nd
 from glob import glob
+from itertools import groupby
+import logging
+
+def distribute_scenes_into_folders(tartanPath,symlinkPath):
+	"""
+	The tartanPath is the place where you have stored all your tartanAir zip files and inside they are named as
+	scenename_scenedifficulty_filetype_leftorright.zip
+	symlinkPath is where you will find
+	"""
+	tartanPath = Path(tartanPath)
+	lgr = logging.getLogger('distribute_scenes_into_folders')
+	symlinks_path = Path(symlinks_path)
+	symlinks_path.mkdir(exist_ok=True)
+
+	lgr.info("Taking files from {} and symlinking them into directories under {}".format(tartanPath,symlinks_path))
+	for key, group in groupby(sorted(list(tartanPath.glob("*.zip"))),key = lambda x: x.name.rsplit('_',2)[0]):
+		lgr.info(key)
+		grouppath = symlinks_path/Path(key) 
+		lgr.info(grouppath)
+		grouppath.mkdir(exist_ok=True)
+		for zipfp in group:
+			(grouppath/zipfp.name).symlink_to(zipfp)
+			lgr.info("...> {} => {}".format(zipfp, grouppath/zipfp.name))
 
 def fill(data, invalid=None):
     """
