@@ -10,6 +10,8 @@ from glob import glob
 from itertools import groupby
 import logging
 
+enable_cache = True
+
 def distribute_scenes_into_folders(tartanPath,symlinkPath):
     """
     The tartanPath is the place where you have stored all your tartanAir zip files and inside they are named as
@@ -79,15 +81,15 @@ class LazyProperty(property):
         if instance is None:
             return self
 
-        if hasattr(instance, self.cache_name):
+        if enable_cache and hasattr(instance, self.cache_name):
             result = getattr(instance, self.cache_name)
         else:
             if self.fget is not None:
                 result = self.fget(instance)
             else:
                 result = self.method(instance)
-
-            setattr(instance, self.cache_name, result)
+            if enable_cache:
+                setattr(instance, self.cache_name, result)
 
         return result
 
@@ -176,9 +178,10 @@ class TartanAirFrame(CacheObject):
   def flow_variance(self):
     # with self:
         return np.var(np.std(self.flow_mask_filled,axis=2))
-
-
-
+@LazyProperty
+  def flow_variance(self):
+    # with self:
+        return np.var(np.std(self.flow_mask_filled,axis=2))
 
 class TartanAirTrajectory(CacheObject):
   def __init__(self,idx,scene):
@@ -274,13 +277,11 @@ class TartanAirScene(CacheObject):
     if isinstance(idx,str):
       return self.zips[idx]
     if isinstance(idx,int):
-      if not idx in self.indices:
-        raise IndexError()
       if not hasattr(self,'_cache_trajectories'):
         self._cache_trajectories = {}
       if not idx in self._cache_trajectories:
         self._cache_trajectories[idx] = TartanAirTrajectory(idx,self)
-      return self._cache_trajectories[idx]
+      return self._cache_trajectories[indices[idx]]
 
   def __iter__(self):
     for x in self.indices:
