@@ -18,7 +18,7 @@ def distribute_scenes_into_folders(tartanPath,symlinkPath):
 	"""
 	tartanPath = Path(tartanPath)
 	lgr = logging.getLogger('distribute_scenes_into_folders')
-	symlinks_path = Path(symlinks_path)
+	symlinks_path = Path(symlinkPath)
 	symlinks_path.mkdir(exist_ok=True)
 
 	lgr.info("Taking files from {} and symlinking them into directories under {}".format(tartanPath,symlinks_path))
