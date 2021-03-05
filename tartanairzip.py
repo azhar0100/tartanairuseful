@@ -281,7 +281,7 @@ class TartanAirScene(CacheObject):
         self._cache_trajectories = {}
       if not idx in self._cache_trajectories:
         self._cache_trajectories[idx] = TartanAirTrajectory(idx,self)
-      return self._cache_trajectories[indices[idx]]
+      return self._cache_trajectories[self.indices[idx]]
 
   def __iter__(self):
     for x in self.indices:
