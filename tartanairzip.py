@@ -242,7 +242,7 @@ class TartanAirTrajectory(CacheObject):
 
 class TartanAirScene(CacheObject):
   def __init__(self,path,pathsandzips=None):
-    lgr = getLogger("TartanAirScene")
+    lgr = logging.getLogger("TartanAirScene")
     self.path = path
     self.zips = {}
     self.expected = ['seg_right.zip', 'flow_mask.zip', 'seg_left.zip', 'image_right.zip', 'flow_flow.zip', 'depth_left.zip', 'depth_right.zip', 'image_left.zip']
