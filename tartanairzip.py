@@ -242,12 +242,15 @@ class TartanAirTrajectory(CacheObject):
 
 class TartanAirScene(CacheObject):
   def __init__(self,path,pathsandzips=None):
+  	lgr = getLogger("TartanAirScene")
     self.path = path
     self.zips = {}
     self.expected = ['seg_right.zip', 'flow_mask.zip', 'seg_left.zip', 'image_right.zip', 'flow_flow.zip', 'depth_left.zip', 'depth_right.zip', 'image_left.zip']
     if pathsandzips is None:
       self.pathsfound = [x for x in self.expected if glob(path + '/' + "*" + x) != []]
+      lgr.debug("paths found are {}".format(self.pathsfound))
       self.zipfilepaths = [glob(path + '/' + "*" + x)[0] for x in self.pathsfound]
+      lgr.debug("zip files found are {}".format(self.zipfilepaths))
     else:
       self.pathsfound = pathsandzips[0]
       self.zipfilepaths = pathsandzips[1]
