@@ -178,7 +178,7 @@ class TartanAirFrame(CacheObject):
   def flow_variance(self):
     # with self:
         return np.var(np.std(self.flow_mask_filled,axis=2))
-@LazyProperty
+  @LazyProperty
   def flow_variance(self):
     # with self:
         return np.var(np.std(self.flow_mask_filled,axis=2))
