@@ -11,25 +11,25 @@ from itertools import groupby
 import logging
 
 def distribute_scenes_into_folders(tartanPath,symlinkPath):
-	"""
-	The tartanPath is the place where you have stored all your tartanAir zip files and inside they are named as
-	scenename_scenedifficulty_filetype_leftorright.zip
-	symlinkPath is where you will find
-	"""
-	tartanPath = Path(tartanPath)
-	lgr = logging.getLogger('distribute_scenes_into_folders')
-	symlinks_path = Path(symlinkPath)
-	symlinks_path.mkdir(exist_ok=True)
+    """
+    The tartanPath is the place where you have stored all your tartanAir zip files and inside they are named as
+    scenename_scenedifficulty_filetype_leftorright.zip
+    symlinkPath is where you will find
+    """
+    tartanPath = Path(tartanPath)
+    lgr = logging.getLogger('distribute_scenes_into_folders')
+    symlinks_path = Path(symlinkPath)
+    symlinks_path.mkdir(exist_ok=True)
 
-	lgr.info("Taking files from {} and symlinking them into directories under {}".format(tartanPath,symlinks_path))
-	for key, group in groupby(sorted(list(tartanPath.glob("*.zip"))),key = lambda x: x.name.rsplit('_',2)[0]):
-		lgr.info(key)
-		grouppath = symlinks_path/Path(key) 
-		lgr.info(grouppath)
-		grouppath.mkdir(exist_ok=True)
-		for zipfp in group:
-			(grouppath/zipfp.name).symlink_to(zipfp)
-			lgr.info("...> {} => {}".format(zipfp, grouppath/zipfp.name))
+    lgr.info("Taking files from {} and symlinking them into directories under {}".format(tartanPath,symlinks_path))
+    for key, group in groupby(sorted(list(tartanPath.glob("*.zip"))),key = lambda x: x.name.rsplit('_',2)[0]):
+        lgr.info(key)
+        grouppath = symlinks_path/Path(key) 
+        lgr.info(grouppath)
+        grouppath.mkdir(exist_ok=True)
+        for zipfp in group:
+            (grouppath/zipfp.name).symlink_to(zipfp)
+            lgr.info("...> {} => {}".format(zipfp, grouppath/zipfp.name))
 
 def fill(data, invalid=None):
     """
@@ -242,7 +242,7 @@ class TartanAirTrajectory(CacheObject):
 
 class TartanAirScene(CacheObject):
   def __init__(self,path,pathsandzips=None):
-  	lgr = getLogger("TartanAirScene")
+    lgr = getLogger("TartanAirScene")
     self.path = path
     self.zips = {}
     self.expected = ['seg_right.zip', 'flow_mask.zip', 'seg_left.zip', 'image_right.zip', 'flow_flow.zip', 'depth_left.zip', 'depth_right.zip', 'image_left.zip']
