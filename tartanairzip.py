@@ -277,11 +277,12 @@ class TartanAirScene(CacheObject):
     if isinstance(idx,str):
       return self.zips[idx]
     if isinstance(idx,int):
+      idx = self.indices[idx]
       if not hasattr(self,'_cache_trajectories'):
         self._cache_trajectories = {}
       if not idx in self._cache_trajectories:
         self._cache_trajectories[idx] = TartanAirTrajectory(idx,self)
-      return self._cache_trajectories[self.indices[idx]]
+      return self._cache_trajectories[idx]
 
   def __iter__(self):
     for x in self.indices:
