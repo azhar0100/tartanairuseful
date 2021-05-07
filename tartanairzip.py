@@ -123,14 +123,13 @@ class TartanAirFrame(CacheObject):
   
   @LazyProperty
   def image_right(self):
-    with self.zips['image_right'].open(self.namedict['image_right']) as p:
-      return Image.open(p)
+    with self.zips['image_right'].open(self.namedict['image_right']) as f:
+    	return Image.open(BytesIO(f.read()))
   
   @LazyProperty
   def image_left(self):
-    with tempfile.TemporaryDirectory() as tfd:
-      p = self.zips['image_left'].extract(self.namedict['image_left'],tfd)
-      return Image.open(p)
+    with self.zips['image_left'].open(self.namedict['image_left']) as f:
+    	return Image.open(BytesIO(f.read()))
   
   @LazyProperty
   def seg_right(self):
